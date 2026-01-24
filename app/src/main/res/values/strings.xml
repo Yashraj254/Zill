@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">Zill</string>
+    <string name="permission_read_audio_title">Audio Files Access</string>
+    <string name="permission_read_audio_rationale">This app needs access to your audio files to play music. Without this permission, you won\'t be able to browse or play any songs from your device.</string>
+    <string name="permission_read_audio_denied">Audio file access has been denied. The app cannot function without this permission.</string>
+    <string name="permission_read_audio_settings_instructions">Music and audio</string>
+    <string name="permission_storage_settings_instructions">Storage</string>
+    <string name="permission_read_video_title">Video Files Access</string>
+    <string name="permission_read_video_rationale">This app needs access to your video files to play videos. Without this permission, you won\'t be able to browse or play any videos from your device.</string>
+    <string name="permission_read_video_denied">Video file access has been denied. The app cannot function without this permission.</string>
+    <string name="permission_read_video_settings_instructions">Videos</string>
+    <string name="permission_write_external_storage_title">Storage Modification Access</string>
+    <string name="permission_write_external_storage_rationale">This app needs permission to modify, rename, or delete files. Without this permission, you won\'t be able to organize your media files.</string>
+    <string name="permission_write_external_storage_denied">Storage modification access has been denied.</string>
+    <string name="permission_notifications_title">Notification Access</string>
+    <string name="permission_notifications_rationale">This app needs permission to send you notifications to keep you updated. Without this permission, you won\'t receive important updates.</string>
+    <string name="permission_notifications_denied">Notification access has been denied.</string>
+    <string name="permission_notifications_settings_instructions">Notifications</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="permission_enable_manually">Please enable it manually in Settings:</string>
+    <string name="permission_settings_path">Settings → Apps → %1$s → Permissions → %2$s</string>
+    <string name="open_settings">Open Settings</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="destination_music">Music</string>
+    <string name="destination_favorites">Favorites</string>
+    <string name="destination_playlists">Playlists</string>
 </resources>
