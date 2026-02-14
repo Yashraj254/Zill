@@ -1,4 +1,4 @@
-package me.yashraj.zill.ui
+package me.yashraj.zill.navigation
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue

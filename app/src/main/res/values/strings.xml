@@ -25,4 +25,5 @@
     <string name="destination_music">Music</string>
     <string name="destination_favorites">Favorites</string>
     <string name="destination_playlists">Playlists</string>
+    <string name="destination_folders">Folders</string>
 </resources>

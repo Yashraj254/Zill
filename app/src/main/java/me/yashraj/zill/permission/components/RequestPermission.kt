@@ -1,9 +1,11 @@
-package me.yashraj.zill.ui.permission.components
+package me.yashraj.zill.permission.components
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -15,7 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import me.yashraj.zill.ui.permission.PermissionType
+import me.yashraj.zill.permission.PermissionType
 
 @Composable
 fun RequestPermission(
@@ -45,7 +47,7 @@ fun RequestPermission(
             val shouldShowRationale = permissionType.permissions.any { permission ->
                 permissionsMap[permission] == false &&
                         ActivityCompat.shouldShowRequestPermissionRationale(
-                            context as androidx.activity.ComponentActivity,
+                            context as ComponentActivity,
                             permission
                         )
             }
@@ -64,7 +66,7 @@ fun RequestPermission(
     LaunchedEffect(Unit) {
         val allGranted = permissionType.permissions.all { permission ->
             ContextCompat.checkSelfPermission(context, permission) ==
-                    android.content.pm.PackageManager.PERMISSION_GRANTED
+                    PackageManager.PERMISSION_GRANTED
         }
 
         if (allGranted) {
@@ -117,7 +119,7 @@ fun rememberPermissionState(permissionType: PermissionType): Boolean {
         } else {
             permissionType.permissions.all { permission ->
                 ContextCompat.checkSelfPermission(context, permission) ==
-                        android.content.pm.PackageManager.PERMISSION_GRANTED
+                        PackageManager.PERMISSION_GRANTED
             }
         }
     }

@@ -1,4 +1,4 @@
-package me.yashraj.zill.ui.music
+package me.yashraj.zill.ui.core
 
 import me.yashraj.zill.domain.model.Track
 

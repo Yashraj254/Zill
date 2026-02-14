@@ -1,4 +1,4 @@
-package me.yashraj.zill.ui.music
+package me.yashraj.zill.ui.folder
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -9,17 +9,16 @@ import me.yashraj.zill.navigation.LocalAppBarController
 import me.yashraj.zill.permission.PermissionType
 import me.yashraj.zill.permission.components.RequestPermission
 import me.yashraj.zill.permission.components.rememberPermissionState
-import me.yashraj.zill.ui.core.MusicTrackViewModel
 import timber.log.Timber
 
 @Composable
-fun MusicScreen() {
+fun FolderScreen(onFolderClick: (String) -> Unit) {
     val appBar = LocalAppBarController.current
 
     LaunchedEffect(Unit) {
         appBar.update {
             copy(
-                title = "Music",
+                title = "Folders",
                 showBack = false
             )
         }
@@ -35,11 +34,11 @@ fun MusicScreen() {
     Timber.d("isPermissionGranted: %s", isPermissionGranted)
 
     if (isPermissionGranted) {
-        val viewModel: MusicTrackViewModel = hiltViewModel()
-        val tracks by viewModel.tracks.collectAsStateWithLifecycle()
-        Timber.d("tracks: %s", tracks)
-
-        
-        MusicScreenContent(tracks)
+        val viewModel: FolderViewModel = hiltViewModel()
+        val folders by viewModel.folders.collectAsStateWithLifecycle()
+        Timber.d("folders: %s", folders)
+        FolderScreenContent(folders) {
+            onFolderClick(it)
+        }
     }
 }

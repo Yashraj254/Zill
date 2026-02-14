@@ -1,4 +1,4 @@
-package me.yashraj.zill.ui.permission.components
+package me.yashraj.zill.permission.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,7 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import me.yashraj.zill.R
-import me.yashraj.zill.ui.permission.PermissionType
+import me.yashraj.zill.permission.PermissionType
 
 @Composable
 fun PermissionPermanentlyDeniedDialog(

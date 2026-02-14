@@ -1,4 +1,4 @@
-package me.yashraj.zill.ui.permission
+package me.yashraj.zill.permission
 
 import android.Manifest
 import android.os.Build

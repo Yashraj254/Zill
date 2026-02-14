@@ -1,4 +1,4 @@
-package me.yashraj.zill.ui.music
+package me.yashraj.zill.ui.folder
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,16 +14,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import me.yashraj.zill.ui.core.TrackUiState
 
 @Composable
-fun MusicScreenContent(
-    trackUiState: TrackUiState
+fun FolderScreenContent(
+    folderUiState: FolderUiState, onFolderClick: (String) -> Unit
 ) {
     val state = rememberLazyListState()
     LazyColumn(state = state, modifier = Modifier.fillMaxSize()) {
-        when (trackUiState) {
-            is TrackUiState.Loading -> {
+        when (folderUiState) {
+            is FolderUiState.Loading -> {
                 item {
                     Box(
                         modifier = Modifier
@@ -35,15 +34,15 @@ fun MusicScreenContent(
                 }
             }
 
-            is TrackUiState.Success -> {
-                items(items = trackUiState.tracks, key = { it.id }) { track ->
-                    MusicTrackItem(track) {
-
+            is FolderUiState.Success -> {
+                items(items = folderUiState.folders, key = { it.path }) { folder ->
+                    FolderItem(folder.name, folder.trackCount) {
+                        onFolderClick(folder.path)
                     }
                 }
             }
 
-            is TrackUiState.Error -> {
+            is FolderUiState.Error -> {
                 item {
                     Box(
                         modifier = Modifier
@@ -52,7 +51,7 @@ fun MusicScreenContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = trackUiState.error ?: "An error occurred",
+                            text = folderUiState.error ?: "An error occurred",
                             color = MaterialTheme.colorScheme.error
                         )
                     }
@@ -61,4 +60,3 @@ fun MusicScreenContent(
         }
     }
 }
-
