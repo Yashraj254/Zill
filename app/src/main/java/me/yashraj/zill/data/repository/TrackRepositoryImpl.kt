@@ -2,6 +2,7 @@ package me.yashraj.zill.data.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import me.yashraj.zill.data.MediaSource
@@ -32,8 +33,11 @@ class TrackRepositoryImpl(private val mediaSource: MediaSource): TrackRepository
             }.flowOn(Dispatchers.IO)
     }
 
-    override suspend fun getTrackById(id: Long): Track? {
-        TODO("Not yet implemented")
+    override suspend fun getTrackById(id: Long?): Track? {
+        return getAllTracks()
+            .map { tracks -> tracks.firstOrNull { it.id == id } }
+            .flowOn(Dispatchers.IO)
+            .firstOrNull()
     }
 
     override suspend fun searchTracks(query: String): List<Track> {
