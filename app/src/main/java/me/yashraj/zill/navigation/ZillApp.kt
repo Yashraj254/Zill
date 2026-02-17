@@ -41,15 +41,18 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.rememberNavBackStack
 import kotlinx.coroutines.launch
+import me.yashraj.zill.ui.player.PlayerViewModel
 
 
 private val NAV_BAR_HEIGHT = 80.dp
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun ZillApp() {
+fun ZillApp(viewModel: PlayerViewModel = hiltViewModel()) {
     val backStack = rememberNavBackStack(Screen.Music)
     val currentKey = backStack.last()
     val appBarController = remember { AppBarController() }
@@ -110,6 +113,15 @@ fun ZillApp() {
         }
     }
 
+    val openExpanded by viewModel.openExpanded.collectAsStateWithLifecycle()
+
+    LaunchedEffect(openExpanded) {
+        if (openExpanded) {
+            sheetController.show()
+            draggableState.animateTo(PlayerSheetState.EXPANDED)
+            viewModel.consumeOpenExpanded()
+        }
+    }
     // Provide appBar, controllers and back stack to the composition
     CompositionLocalProvider(
         LocalAppBarController provides appBarController,

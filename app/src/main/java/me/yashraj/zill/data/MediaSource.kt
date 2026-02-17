@@ -163,4 +163,76 @@ class MediaSource @Inject constructor(
     private fun Cursor.getIntOrNull(columnIndex: Int): Int? {
         return if (isNull(columnIndex)) null else getInt(columnIndex)
     }
+
+    /**
+     * Resolves any content:// or file:// URI to an absolute filesystem path.
+     *
+     * Handles three URI types in order:
+     *  1. DocumentsProvider URIs from the system file picker / Files app
+     *     (e.g. content://com.android.externalstorage.documents/document/primary:Music/song.mp3)
+     *  2. Generic content:// URIs — queries MediaStore.MediaColumns.DATA
+     *  3. file:// URIs — path is already embedded in the URI
+     */
+    suspend fun resolvePathFromUri(uri: Uri): String? = withContext(Dispatchers.IO) {
+        // 1. DocumentsProvider URI (Files app, Storage Access Framework)
+        //    These encode the real path as "primary:relative/path" or
+        //    "<volumeId>:relative/path" inside the last path segment.
+        decodeDocumentUri(uri)?.let { return@withContext it }
+
+        // 2. Generic content:// — try reading the DATA column directly
+        val projection = arrayOf(MediaStore.MediaColumns.DATA)
+        try {
+            contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val col = cursor.getColumnIndex(MediaStore.MediaColumns.DATA)
+                    if (col >= 0) {
+                        val path = cursor.getString(col)
+                        if (!path.isNullOrBlank()) return@withContext path
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Timber.w(e, "resolvePathFromUri: DATA column query failed for $uri")
+        }
+
+        // 3. file:// — path is already there
+        uri.path?.takeIf { it.startsWith("/") }
+    }
+
+    /**
+     * Decodes a DocumentsProvider URI into a real filesystem path.
+     *
+     * The document ID embedded in these URIs looks like:
+     *   "primary:New folder/song.mp3"   →  /storage/emulated/0/New folder/song.mp3
+     *   "1A2B-3C4D:Music/track.flac"   →  /storage/1A2B-3C4D/Music/track.flac
+     *
+     * Returns null for any URI that doesn't follow this format.
+     */
+    private fun decodeDocumentUri(uri: Uri): String? {
+        // Only applies to content:// URIs from the external storage documents provider
+        // or the generic documents UI. Pattern: …/document/<docId>
+        val pathSegments = uri.pathSegments
+        val docSegmentIndex = pathSegments.indexOf("document")
+        if (docSegmentIndex < 0 || docSegmentIndex + 1 >= pathSegments.size) return null
+
+        // The document ID is everything after "/document/" — it may itself contain "/"
+        // so we reconstruct it from the raw path rather than just pathSegments[docSegmentIndex+1]
+        val rawPath = uri.path ?: return null
+        val prefix = "/document/"
+        val docId = rawPath.substringAfter(prefix, missingDelimiterValue = "")
+            .let { Uri.decode(it) }   // decode %3A → : and %2F → /
+
+        if (!docId.contains(":")) return null
+
+        val (volume, relativePath) = docId.split(":", limit = 2)
+
+        return when {
+            volume.equals("primary", ignoreCase = true) ->
+                "/storage/emulated/0/$relativePath"
+            volume.matches(Regex("[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}")) ->
+                // SD card or USB volume with an ID like "1A2B-3C4D"
+                "/storage/$volume/$relativePath"
+            else -> null
+        }
+    }
 }

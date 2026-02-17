@@ -1,5 +1,6 @@
 package me.yashraj.zill.domain.repository
 
+import android.net.Uri
 import kotlinx.coroutines.flow.Flow
 import me.yashraj.zill.domain.model.Folder
 import me.yashraj.zill.domain.model.Track
@@ -12,4 +13,9 @@ interface TrackRepository {
     suspend fun getTracksByArtist(artistId: Long): List<Track>
     suspend fun getTracksByAlbum(albumId: Long): List<Track>
     suspend fun getFolderTracks(path: String): Flow<List<Track>>
+    /**
+     * Resolves a content:// or file:// URI to a Track already indexed in
+     * MediaStore.  Returns null if the URI cannot be matched.
+     */
+    suspend fun getTrackByUri(uri: Uri): Track?
 }

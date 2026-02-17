@@ -100,8 +100,8 @@ fun MusicPlayerScreen(
             ) {
                 AsyncImage(
                     model = state.currentTrack?.artworkUri,
-                    placeholder = painterResource(R.drawable.zill_logo),
-                    error = painterResource(R.drawable.zill_logo),
+                    placeholder = painterResource(R.drawable.zill),
+                    error = painterResource(R.drawable.zill),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()

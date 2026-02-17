@@ -1,5 +1,6 @@
 package me.yashraj.zill.data.repository
 
+import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -61,5 +62,33 @@ class TrackRepositoryImpl(private val mediaSource: MediaSource): TrackRepository
                 }
             }
             .flowOn(Dispatchers.IO)
+    }
+
+
+    override suspend fun getTrackByUri(uri: Uri): Track? {
+        // Case 1 – URI is already a MediaStore URI like:
+        //   content://media/external/audio/media/42
+        // Pull the numeric ID from the last path segment and look it up directly.
+        uri.lastPathSegment?.toLongOrNull()?.let { id ->
+            val track = getTrackById(id)
+            if (track != null) return track
+        }
+
+        // Case 2 – URI is a file:// or an opaque content:// from a third-party
+        // file manager. Resolve to a real path, then match against known tracks.
+        val resolvedPath: String? = when (uri.scheme) {
+            "file"    -> uri.path
+            "content" -> mediaSource.resolvePathFromUri(uri)
+            else      -> null
+        }
+
+        if (resolvedPath != null) {
+            return getAllTracks()
+                .map { tracks -> tracks.firstOrNull { it.path == resolvedPath } }
+                .flowOn(Dispatchers.IO)
+                .firstOrNull()
+        }
+
+        return null
     }
 }

@@ -18,6 +18,7 @@ import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import me.yashraj.zill.MainActivity
 import me.yashraj.zill.background.PlayerService.Companion.ACTION_STOP
+import me.yashraj.zill.utils.EXTRA_OPEN_PLAYER_EXPANDED
 
 
 class PlayerService : MediaSessionService() {
@@ -52,7 +53,9 @@ class PlayerService : MediaSessionService() {
         // Opens the app when the user taps the media notification.
         val sessionActivityPendingIntent = PendingIntent.getActivity(
             this, 0,
-            Intent(this, MainActivity::class.java),
+            Intent(this, MainActivity::class.java).apply {
+                putExtra(EXTRA_OPEN_PLAYER_EXPANDED, true)
+            },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
