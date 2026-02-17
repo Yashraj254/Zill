@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +40,7 @@ val sampleTrack = Track(
     id = 1L,
     title = "Midnight Reverie",
     artist = "Luna Voss",
+    artistId = 1L,
     artworkUri = "https://picsum.photos/seed/music1/600/600".toUri(),
     duration = 237_000L,
     album = "Dreamscapes",

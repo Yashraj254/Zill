@@ -110,6 +110,7 @@ private val previewTrack = Track(
     uri = Uri.EMPTY,
     title = "Time",
     artist = "Pink Floyd",
+    artistId = 1L,
     album = "The Dark Side of the Moon",
     albumId = 1L,
     artworkUri = Uri.EMPTY,

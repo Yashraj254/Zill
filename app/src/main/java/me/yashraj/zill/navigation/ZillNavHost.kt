@@ -3,19 +3,17 @@ package me.yashraj.zill.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
-import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import me.yashraj.zill.ui.album.AlbumScreen
+import me.yashraj.zill.ui.album.AlbumTrackScreen
+import me.yashraj.zill.ui.artist.ArtistScreen
+import me.yashraj.zill.ui.artist.ArtistTrackScreen
 import me.yashraj.zill.ui.folder.FolderScreen
-import me.yashraj.zill.ui.folder.tracks.FolderTrackScreen
+import me.yashraj.zill.ui.folder.FolderTrackScreen
 import me.yashraj.zill.ui.music.MusicScreen
-import java.util.Map.entry
 
 @Composable
 fun ZillNavDisplay(
@@ -65,6 +63,26 @@ fun ZillNavDisplay(
 
             entry<Screen.FolderTracks> { key ->
                 FolderTrackScreen(folderPath = key.folderPath)
+            }
+
+            entry<Screen.Artists> {
+                ArtistScreen(onArtistClick = { id, name ->
+                    backStack.add(Screen.ArtistTracks(artistId = id, artistName = name))
+                })
+            }
+
+            entry<Screen.ArtistTracks> { key ->
+                ArtistTrackScreen(artistId = key.artistId, artistName = key.artistName)
+            }
+
+            entry<Screen.Albums> {
+                AlbumScreen(onAlbumClick = { id, name ->
+                    backStack.add(Screen.AlbumTracks(albumId = id, albumName = name))
+                })
+            }
+
+            entry<Screen.AlbumTracks> { key ->
+                AlbumTrackScreen(albumId = key.albumId, albumName = key.albumName)
             }
         }
     )

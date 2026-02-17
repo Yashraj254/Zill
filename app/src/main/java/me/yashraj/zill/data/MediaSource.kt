@@ -21,6 +21,8 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.core.net.toUri
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @Singleton
 class MediaSource @Inject constructor(
@@ -34,6 +36,7 @@ class MediaSource @Inject constructor(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ARTIST_ID,
             MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.ALBUM_ID,
             MediaStore.Audio.Media.DURATION,
@@ -57,6 +60,7 @@ class MediaSource @Inject constructor(
      * Observes audio files with live updates when media store changes.
      * Emits a new list whenever files are added, removed, or modified.
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun observeAudioFiles(): Flow<List<Track>> = callbackFlow {
         val observer = object : ContentObserver(null) {
             override fun onChange(selfChange: Boolean) {
@@ -107,6 +111,7 @@ class MediaSource @Inject constructor(
             val idColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
             val titleColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
             val artistColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+            val artistIdColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID)
             val albumColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
             val albumIdColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
             val durationColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
@@ -127,7 +132,7 @@ class MediaSource @Inject constructor(
                     )
 
                     val albumArtUri = ContentUris.withAppendedId(
-                        Uri.parse("content://media/external/audio/albumart"),
+                        "content://media/external/audio/albumart".toUri(),
                         c.getLong(albumIdColumn)
                     )
 
@@ -136,6 +141,7 @@ class MediaSource @Inject constructor(
                         uri = contentUri,
                         title = c.getString(titleColumn) ?: "Unknown Title",
                         artist = c.getString(artistColumn) ?: "Unknown Artist",
+                        artistId = c.getLong(artistIdColumn),
                         album = c.getString(albumColumn) ?: "Unknown Album",
                         albumId = c.getLong(albumIdColumn),
                         artworkUri = albumArtUri,

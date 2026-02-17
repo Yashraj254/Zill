@@ -1,4 +1,4 @@
-package me.yashraj.zill.ui.folder.tracks
+package me.yashraj.zill.ui.album
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -6,28 +6,30 @@ import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.yashraj.zill.navigation.LocalAppBarController
-import me.yashraj.zill.ui.core.MusicTrackViewModel
 import me.yashraj.zill.ui.music.MusicScreenContent
 
 @Composable
-fun FolderTrackScreen(
-    folderPath: String,
-    viewModel: MusicTrackViewModel = hiltViewModel()
+fun AlbumTrackScreen(
+    albumId: Long,
+    albumName: String,
+    viewModel: AlbumViewModel = hiltViewModel()
 ) {
     val appBar = LocalAppBarController.current
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(albumId) {
+        viewModel.getAlbumTracks(albumId)
+    }
+
+    val trackUiState by viewModel.albumTracks.collectAsStateWithLifecycle()
+
+    LaunchedEffect(trackUiState) {
         appBar.update {
             copy(
-                title = folderPath.takeLastWhile { it != '/' },
+                title = albumName,
                 showBack = true
             )
         }
     }
-    LaunchedEffect(folderPath) {
-        viewModel.getFolderTracks(folderPath)
-    }
-    val trackUiState by viewModel.folderTracks.collectAsStateWithLifecycle()
+
     MusicScreenContent(trackUiState)
 }
-

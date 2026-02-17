@@ -26,4 +26,6 @@
     <string name="destination_favorites">Favorites</string>
     <string name="destination_playlists">Playlists</string>
     <string name="destination_folders">Folders</string>
+    <string name="destination_artists">Artists</string>
+    <string name="destination_albums">Albums</string>
 </resources>

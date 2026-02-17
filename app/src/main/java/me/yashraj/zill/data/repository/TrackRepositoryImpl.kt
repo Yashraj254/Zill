@@ -7,15 +7,17 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import me.yashraj.zill.data.MediaSource
+import me.yashraj.zill.domain.model.Album
+import me.yashraj.zill.domain.model.Artist
 import me.yashraj.zill.domain.model.Folder
 import me.yashraj.zill.domain.model.Track
 import me.yashraj.zill.domain.repository.TrackRepository
 import java.io.File
 
-class TrackRepositoryImpl(private val mediaSource: MediaSource): TrackRepository {
+class TrackRepositoryImpl(private val mediaSource: MediaSource) : TrackRepository {
 
     override fun getAllTracks(): Flow<List<Track>> {
-       return mediaSource.observeAudioFiles()
+        return mediaSource.observeAudioFiles()
     }
 
     override fun getTrackFolderPath(): Flow<List<Folder>> {
@@ -45,15 +47,59 @@ class TrackRepositoryImpl(private val mediaSource: MediaSource): TrackRepository
         TODO("Not yet implemented")
     }
 
-    override suspend fun getTracksByArtist(artistId: Long): List<Track> {
-        TODO("Not yet implemented")
+    override fun getArtists(): Flow<List<Artist>> {
+        return getAllTracks()
+            .map { tracks ->
+                tracks
+                    .groupBy { it.artistId }
+                    .map { (artistId, artistTracks) ->
+                        val first = artistTracks.first()
+                        Artist(
+                            id = artistId,
+                            name = first.artist,
+                            albumCount = artistTracks.distinctBy { it.albumId }.size,
+                            trackCount = artistTracks.size,
+                            thumbnailUri = first.artworkUri
+                        )
+                    }
+                    .sortedBy { it.name }
+            }.flowOn(Dispatchers.IO)
     }
 
-    override suspend fun getTracksByAlbum(albumId: Long): List<Track> {
-        TODO("Not yet implemented")
+    override fun getTracksByArtist(artistId: Long): Flow<List<Track>> {
+        return getAllTracks().map { tracks ->
+            tracks.filter { it.artistId == artistId }
+        }
     }
 
-    override suspend fun getFolderTracks(path: String): Flow<List<Track>> {
+    override fun getAlbums(): Flow<List<Album>> {
+        return getAllTracks()
+            .map { tracks ->
+                tracks
+                    .groupBy { it.albumId }
+                    .map { (albumId, albumTracks) ->
+                        val first = albumTracks.first()
+                        Album(
+                            id = albumId,
+                            title = first.album,
+                            artistId = first.artistId,
+                            artistName = first.artist,
+                            trackCount = albumTracks.size,
+                            year = first.year,
+                            albumArtUri = first.artworkUri
+                        )
+                    }
+                    .sortedBy { it.title }
+            }.flowOn(Dispatchers.IO)
+    }
+
+    override fun getTracksByAlbum(albumId: Long): Flow<List<Track>> {
+        return getAllTracks().map { tracks ->
+            tracks.filter { it.albumId == albumId }
+        }
+    }
+
+    override fun getFolderTracks(path: String): Flow<List<Track>> {
         val normalizedFolder = File(path).absolutePath
         return getAllTracks()
             .map { tracks ->
@@ -77,9 +123,9 @@ class TrackRepositoryImpl(private val mediaSource: MediaSource): TrackRepository
         // Case 2 – URI is a file:// or an opaque content:// from a third-party
         // file manager. Resolve to a real path, then match against known tracks.
         val resolvedPath: String? = when (uri.scheme) {
-            "file"    -> uri.path
+            "file" -> uri.path
             "content" -> mediaSource.resolvePathFromUri(uri)
-            else      -> null
+            else -> null
         }
 
         if (resolvedPath != null) {

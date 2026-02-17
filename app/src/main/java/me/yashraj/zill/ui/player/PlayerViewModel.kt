@@ -83,6 +83,7 @@ class PlayerViewModel @Inject constructor(
             uri = uri,
             title = fileName,
             artist = "Unknown Artist",
+            artistId = 0L,
             album = "Unknown Album",
             albumId = 0L,
             artworkUri = Uri.EMPTY,
