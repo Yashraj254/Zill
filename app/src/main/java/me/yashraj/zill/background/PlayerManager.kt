@@ -65,7 +65,7 @@ class PlayerManager @Inject constructor(
             _uiState.update {
                 it.copy(
                     currentIndex = index,
-                    currentSong = uiState.value.playlist.getOrNull(index),
+                    currentTrack = uiState.value.playlist.getOrNull(index),
                     progressMs = 0L,
                     durationMs = ctrl.duration.coerceAtLeast(0L)
                 )
@@ -124,7 +124,7 @@ class PlayerManager @Inject constructor(
                     isConnected = true,
                     isPlaying = ctrl.isPlaying,
                     currentIndex = index,
-                    currentSong = tracks.getOrNull(index),
+                    currentTrack = tracks.getOrNull(index),
                     playlist = tracks,
                     durationMs = ctrl.duration.coerceAtLeast(0L),
                     progressMs = ctrl.currentPosition.coerceAtLeast(0L)
@@ -192,7 +192,7 @@ class PlayerManager @Inject constructor(
             it.copy(
                 playlist = tracks,
                 currentIndex = startIndex,
-                currentSong = tracks.getOrNull(startIndex),
+                currentTrack = tracks.getOrNull(startIndex),
                 progressMs = 0L
             )
         }

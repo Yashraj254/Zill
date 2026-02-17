@@ -15,15 +15,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import me.yashraj.zill.navigation.LocalPlayerSheetController
 import me.yashraj.zill.ui.core.TrackUiState
 import me.yashraj.zill.ui.player.PlayerViewModel
 
 @Composable
 fun MusicScreenContent(
-    trackUiState: TrackUiState
+    trackUiState: TrackUiState,
+    playerViewModel: PlayerViewModel = hiltViewModel()
 ) {
     val state = rememberLazyListState()
-    val playerViewModel = hiltViewModel<PlayerViewModel>()
+    val sheetController = LocalPlayerSheetController.current
 
     LazyColumn(state = state, modifier = Modifier.fillMaxSize()) {
         when (trackUiState) {
@@ -40,9 +42,10 @@ fun MusicScreenContent(
             }
 
             is TrackUiState.Success -> {
-                itemsIndexed(items = trackUiState.tracks,key = { _, track -> track.id }) { index, track ->
+                itemsIndexed(items = trackUiState.tracks, key = { _, track -> track.id }) { index, track ->
                     MusicTrackItem(track) {
                         playerViewModel.onPlayFromPlaylist(trackUiState.tracks, index)
+                        sheetController.show()
                     }
                 }
             }

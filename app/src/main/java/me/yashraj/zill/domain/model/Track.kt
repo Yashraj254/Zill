@@ -6,10 +6,10 @@ data class Track(
     val id: Long,
     val uri: Uri,
     val title: String,
-    val artist: String,
+    val artist: String="Unknown Artist",
     val album: String,
     val albumId: Long,
-    val albumArtUri: Uri,
+    val artworkUri: Uri,
     val duration: Long, // milliseconds
     val path: String,
     val dateAdded: Long, // timestamp

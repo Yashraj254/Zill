@@ -1,6 +1,5 @@
 package me.yashraj.zill.ui.music
 
-import android.R.attr.contentDescription
 import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -42,15 +41,14 @@ fun MusicTrackItem(
         val imageSize = (maxWidth * 0.12f).coerceIn(48.dp, 72.dp)
 
         Row(
-            modifier = Modifier
-                .padding(
-                    horizontal = horizontalPadding,
-                    vertical = 8.dp
-                ),
+            modifier = Modifier.padding(
+                horizontal = horizontalPadding,
+                vertical = 8.dp
+            ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = track.albumArtUri,
+                model = track.artworkUri,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 placeholder = painterResource(R.drawable.zill_logo),
@@ -63,9 +61,7 @@ fun MusicTrackItem(
 
             Spacer(Modifier.width(12.dp))
 
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = track.title,
                     maxLines = 1,
@@ -74,7 +70,7 @@ fun MusicTrackItem(
                 )
 
                 Text(
-                    text = track.artist,
+                    text = track.artist + " ● " + track.album,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodySmall,
@@ -116,7 +112,7 @@ private val previewTrack = Track(
     artist = "Pink Floyd",
     album = "The Dark Side of the Moon",
     albumId = 1L,
-    albumArtUri = Uri.EMPTY,
+    artworkUri = Uri.EMPTY,
     duration = 412000,
     path = "",
     dateAdded = 0L,

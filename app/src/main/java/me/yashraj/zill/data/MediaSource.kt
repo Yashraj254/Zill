@@ -9,10 +9,7 @@ import android.database.ContentObserver
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.provider.MediaStore
-import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -141,7 +138,7 @@ class MediaSource @Inject constructor(
                         artist = c.getString(artistColumn) ?: "Unknown Artist",
                         album = c.getString(albumColumn) ?: "Unknown Album",
                         albumId = c.getLong(albumIdColumn),
-                        albumArtUri = albumArtUri,
+                        artworkUri = albumArtUri,
                         duration = c.getLong(durationColumn),
                         path = c.getString(dataColumn) ?: "",
                         dateAdded = c.getLong(dateAddedColumn),

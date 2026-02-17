@@ -3,7 +3,7 @@ package me.yashraj.zill.ui.player
 import me.yashraj.zill.domain.model.Track
 
 data class PlayerUiState(
-    val currentSong: Track? = null,
+    val currentTrack: Track? = null,
     val playlist: List<Track> = emptyList(),
     val currentIndex: Int = 0,
     val isPlaying: Boolean = false,

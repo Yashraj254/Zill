@@ -22,7 +22,7 @@ enum class BottomDestination(
 sealed interface Screen : NavKey {
     @Serializable data object Music : Screen
     @Serializable data object Folders : Screen
-    @Serializable data class FolderTracks(val folderId: String) : Screen
+    @Serializable data class FolderTracks(val folderPath: String) : Screen
 }
 
 val LocalNavBackStack = staticCompositionLocalOf<MutableList<NavKey>> {

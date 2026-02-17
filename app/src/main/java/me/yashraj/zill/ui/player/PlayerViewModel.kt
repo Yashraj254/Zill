@@ -17,10 +17,10 @@ class PlayerViewModel @Inject constructor(
 
     val uiState: StateFlow<PlayerUiState> = playerManager.uiState
 
-    fun onPlayPause() = playerManager.playPause()
-    fun onNext() = playerManager.next()
-    fun onPrevious() = playerManager.previous()
-    fun onSeek(ms: Long) = playerManager.seek(ms)
+    fun togglePlayPause() = playerManager.playPause()
+    fun skipNext() = playerManager.next()
+    fun skipPrevious() = playerManager.previous()
+    fun seekTo(ms: Long) = playerManager.seek(ms)
 
     fun onPlayFromPlaylist(tracks: List<Track>, startIndex: Int) = viewModelScope.launch {
         playerManager.playFromPlaylist(tracks, startIndex)

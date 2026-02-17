@@ -11,7 +11,7 @@ import me.yashraj.zill.ui.music.MusicScreenContent
 
 @Composable
 fun FolderTrackScreen(
-    folderId: String,
+    folderPath: String,
     viewModel: MusicTrackViewModel = hiltViewModel()
 ) {
     val appBar = LocalAppBarController.current
@@ -19,13 +19,13 @@ fun FolderTrackScreen(
     LaunchedEffect(Unit) {
         appBar.update {
             copy(
-                title = folderId,
+                title = folderPath.takeLastWhile { it != '/' },
                 showBack = true
             )
         }
     }
-    LaunchedEffect(folderId) {
-        viewModel.getFolderTracks(folderId)
+    LaunchedEffect(folderPath) {
+        viewModel.getFolderTracks(folderPath)
     }
     val trackUiState by viewModel.folderTracks.collectAsStateWithLifecycle()
     MusicScreenContent(trackUiState)
