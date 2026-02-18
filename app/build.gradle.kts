@@ -73,7 +73,7 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.kotlinxCoroutinesGuava)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
-
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.coil.compose)
 
     implementation(libs.timber)

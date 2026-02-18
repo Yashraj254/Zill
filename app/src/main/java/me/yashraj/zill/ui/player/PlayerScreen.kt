@@ -12,6 +12,10 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,7 +32,9 @@ import coil3.compose.AsyncImage
 import me.yashraj.zill.R
 import me.yashraj.zill.domain.model.Track
 import me.yashraj.zill.ui.player.components.MusicSeekBar
+import me.yashraj.zill.ui.player.components.NextTrackBar
 import me.yashraj.zill.ui.player.components.PlaybackControls
+import me.yashraj.zill.ui.queue.TrackQueueScreen
 import me.yashraj.zill.ui.theme.IcyBgBottom
 import me.yashraj.zill.ui.theme.IcyBgTop
 import me.yashraj.zill.ui.theme.IcyPrimary
@@ -65,13 +71,13 @@ fun MusicPlayerScreen(
     onSeek: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var showQueue by remember { mutableStateOf(false) }
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(
-                Brush.verticalGradient(
-                    colors = listOf(IcyBgTop, IcyBgBottom)
-                )
+                Brush.verticalGradient(colors = listOf(IcyBgTop, IcyBgBottom))
             )
             .systemBarsPadding()
     ) {
@@ -81,20 +87,16 @@ fun MusicPlayerScreen(
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-
             Spacer(Modifier.height(48.dp))
 
-            // Artwork card (soft surface gradient)
+            // Artwork card
             Box(
                 modifier = Modifier
                     .size(260.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(
-                                IcySurface,
-                                IcySurface.copy(alpha = 0.85f)
-                            )
+                            colors = listOf(IcySurface, IcySurface.copy(alpha = 0.85f))
                         )
                     )
             ) {
@@ -133,7 +135,7 @@ fun MusicPlayerScreen(
 
             Spacer(Modifier.height(28.dp))
 
-            // Seek bar (assumed simple)
+            // Seek bar
             MusicSeekBar(
                 progressMs = state.progressMs,
                 durationMs = state.durationMs,
@@ -149,8 +151,28 @@ fun MusicPlayerScreen(
                 onPrevious = onPrevious,
                 onNext = onNext,
             )
-
         }
+        val nextTrack = remember(state.playlist, state.currentIndex) {
+            state.playlist.getOrNull(state.currentIndex + 1)
+        }
+
+        // Next Track Bar pinned to bottom
+        nextTrack?.let { nextTrack ->
+            NextTrackBar(
+                track = nextTrack,
+                modifier = Modifier.align(Alignment.BottomCenter),
+                onClick = { showQueue = true }
+            )
+        }
+    }
+
+    // Queue bottom sheet
+    if (showQueue) {
+        TrackQueueScreen(
+            queue = state.playlist,
+            currentTrack = state.currentTrack,
+            onDismiss = { showQueue = false }
+        )
     }
 }
 
