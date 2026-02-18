@@ -1,6 +1,7 @@
 package me.yashraj.zill.ui.artist
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -15,21 +16,17 @@ fun ArtistTrackScreen(
     viewModel: ArtistViewModel = hiltViewModel()
 ) {
     val appBar = LocalAppBarController.current
+    val searchQuery = appBar.state.searchQuery
 
-    LaunchedEffect(artistId) {
+    DisposableEffect(artistId) {
+        appBar.update { copy(title = artistName, showBack = true, showSearch = true) }
         viewModel.getArtistTracks(artistId)
+        onDispose { appBar.clearSearch() }
     }
 
     val trackUiState by viewModel.artistTracks.collectAsStateWithLifecycle()
-
-    LaunchedEffect(trackUiState) {
-        appBar.update {
-            copy(
-                title = artistName,
-                showBack = true
-            )
-        }
+    LaunchedEffect(searchQuery) {
+        viewModel.onSearchTrack(searchQuery)
     }
-
     MusicScreenContent(trackUiState)
 }

@@ -14,8 +14,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,6 +26,8 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
@@ -37,9 +42,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -188,19 +195,49 @@ fun ZillApp(viewModel: PlayerViewModel = hiltViewModel()) {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text(appBarController.state.title) },
+                            title = {
+                                if (appBarController.state.isSearchActive) {
+                                    TextField(
+                                        value = appBarController.state.searchQuery,
+                                        onValueChange = { appBarController.onSearchQueryChange(it) },
+                                        placeholder = { Text("Search...") },
+                                        singleLine = true,
+                                        colors = TextFieldDefaults.colors(
+                                            focusedContainerColor = Color.Transparent,
+                                            unfocusedContainerColor = Color.Transparent,
+                                            focusedIndicatorColor = Color.Transparent,
+                                            unfocusedIndicatorColor = Color.Transparent,
+                                        ),
+                                        modifier = Modifier.fillMaxWidth(),
+                                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                                    )
+                                } else {
+                                    Text(appBarController.state.title)
+                                }
+                            },
                             navigationIcon = {
-                                if (appBarController.state.showBack) {
-                                    IconButton(
-                                        onClick = { backStack.removeLastOrNull() }
-                                    ) {
-                                        Icon(
-                                            Icons.AutoMirrored.Filled.ArrowBack,
-                                            contentDescription = "Back",
-                                        )
+                                if (appBarController.state.isSearchActive) {
+                                    // In search mode: back arrow closes search
+                                    IconButton(onClick = { appBarController.clearSearch() }) {
+                                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Close search")
+                                    }
+                                } else if (appBarController.state.showBack) {
+                                    IconButton(onClick = { backStack.removeLastOrNull() }) {
+                                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                                     }
                                 }
                             },
+                            actions = {
+                                if (appBarController.state.showSearch) {
+                                    IconButton(onClick = { appBarController.toggleSearch() }) {
+                                        Icon(
+                                            if (appBarController.state.isSearchActive) Icons.Default.Close
+                                            else Icons.Default.Search,
+                                            contentDescription = "Search"
+                                        )
+                                    }
+                                }
+                            }
                         )
                     },
                 ) { innerPadding ->

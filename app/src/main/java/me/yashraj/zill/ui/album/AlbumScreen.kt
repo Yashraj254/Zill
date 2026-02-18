@@ -1,6 +1,7 @@
 package me.yashraj.zill.ui.album
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -12,16 +13,12 @@ import me.yashraj.zill.permission.components.rememberPermissionState
 import timber.log.Timber
 
 @Composable
-fun AlbumScreen(onAlbumClick: (Long, String) -> Unit) {
+fun AlbumScreen(onAlbumClick: (Long, String) -> Unit, viewModel: AlbumViewModel = hiltViewModel()) {
     val appBar = LocalAppBarController.current
 
-    LaunchedEffect(Unit) {
-        appBar.update {
-            copy(
-                title = "Albums",
-                showBack = false
-            )
-        }
+    DisposableEffect(Unit) {
+        appBar.update { copy(title = "Albums", showBack = false, showSearch = true) }
+        onDispose { appBar.clearSearch() }
     }
 
     var isPermissionGranted = rememberPermissionState(PermissionType.ReadAudio)
@@ -34,9 +31,12 @@ fun AlbumScreen(onAlbumClick: (Long, String) -> Unit) {
     Timber.d("isPermissionGranted: %s", isPermissionGranted)
 
     if (isPermissionGranted) {
-        val viewModel: AlbumViewModel = hiltViewModel()
         val albums by viewModel.albums.collectAsStateWithLifecycle()
+        val searchQuery = appBar.state.searchQuery
         Timber.d("albums: %s", albums)
+        LaunchedEffect(searchQuery) {
+            viewModel.onSearchAlbum(searchQuery)
+        }
         AlbumScreenContent(albums) { id, name ->
             onAlbumClick(id, name)
         }

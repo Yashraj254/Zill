@@ -1,6 +1,7 @@
 package me.yashraj.zill.ui.music
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -13,16 +14,12 @@ import me.yashraj.zill.ui.core.MusicTrackViewModel
 import timber.log.Timber
 
 @Composable
-fun MusicScreen() {
+fun MusicScreen(viewModel: MusicTrackViewModel = hiltViewModel()) {
     val appBar = LocalAppBarController.current
 
-    LaunchedEffect(Unit) {
-        appBar.update {
-            copy(
-                title = "Music",
-                showBack = false
-            )
-        }
+    DisposableEffect(Unit) {
+        appBar.update { copy(title = "Music", showBack = false, showSearch = true) }
+        onDispose { appBar.clearSearch() }
     }
 
     var isPermissionGranted = rememberPermissionState(PermissionType.ReadAudio)
@@ -35,11 +32,12 @@ fun MusicScreen() {
     Timber.d("isPermissionGranted: %s", isPermissionGranted)
 
     if (isPermissionGranted) {
-        val viewModel: MusicTrackViewModel = hiltViewModel()
         val tracks by viewModel.tracks.collectAsStateWithLifecycle()
+        val searchQuery = appBar.state.searchQuery
         Timber.d("tracks: %s", tracks)
-
-        
+        LaunchedEffect(searchQuery) {
+            viewModel.onSearchQueryChange(searchQuery)
+        }
         MusicScreenContent(tracks)
     }
 }
