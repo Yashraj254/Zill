@@ -10,7 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
@@ -24,6 +25,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import me.yashraj.zill.domain.model.Track
+import me.yashraj.zill.ui.core.DraggableItem
+import me.yashraj.zill.ui.core.dragContainer
+import me.yashraj.zill.ui.core.rememberDragDropState
 import me.yashraj.zill.ui.player.PlayerViewModel
 import me.yashraj.zill.ui.theme.IcyBgBottom
 import me.yashraj.zill.ui.theme.IcyPrimary
@@ -38,6 +42,12 @@ fun TrackQueueScreen(
     playerViewModel: PlayerViewModel = hiltViewModel()
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+
+    val listState = rememberLazyListState()
+    val dragDropState = rememberDragDropState(listState) { fromIndex, toIndex ->
+        playerViewModel.onReorder(fromIndex, toIndex) // notify ViewModel of new order
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -68,13 +78,23 @@ fun TrackQueueScreen(
             )
 
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.fillMaxWidth()
+                state = listState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .dragContainer(dragDropState),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                items(items = queue, key = { it.id }) { track ->
-                    val isCurrent = track.id == currentTrack?.id
-                    QueueTrackItem(track = track, isCurrentTrack = isCurrent) {
-                        playerViewModel.onPlayFromPlaylist(queue, queue.indexOf(track))
+                itemsIndexed(items = queue, key = { _, track -> track.id }) { index, track ->
+                    DraggableItem(dragDropState = dragDropState, index = index) { isDragging, startDrag ->
+                        val isCurrent = track.id == currentTrack?.id
+                        QueueTrackItem(
+                            track = track,
+                            isCurrentTrack = isCurrent,
+                            onClick = { playerViewModel.onPlayFromPlaylist(queue, index) },
+                            onDragHandleTouch = { startDrag() },
+                            onDragOffset = { offset -> dragDropState.onDrag(offset) },
+                            onDragEnd = { dragDropState.onDragInterrupted() }
+                        )
                     }
                 }
             }
@@ -83,4 +103,3 @@ fun TrackQueueScreen(
         }
     }
 }
-

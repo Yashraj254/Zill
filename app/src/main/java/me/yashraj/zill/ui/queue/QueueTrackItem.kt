@@ -2,6 +2,7 @@ package me.yashraj.zill.ui.queue
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -17,7 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,21 +40,47 @@ import me.yashraj.zill.ui.theme.IcySurface
 fun QueueTrackItem(
     track: Track,
     isCurrentTrack: Boolean,
+    isDragging: Boolean = false,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
+    onDragHandleTouch: () -> Unit = {},
+    onDragOffset: (Offset) -> Unit = {},
+    onDragEnd: () -> Unit = {},
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
             .background(
-                if (isCurrentTrack) IcySurface else Color.Transparent
+                when {
+                    isCurrentTrack -> IcySurface
+                    else -> Color.Transparent
+                }
             )
             .clickable { onClick() }
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        Icon(
+            imageVector = Icons.Default.DragHandle,
+            contentDescription = "Drag to reorder",
+            tint = IcySecondary.copy(alpha = 0.4f),
+            modifier = Modifier
+                .size(18.dp)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = { _ -> onDragHandleTouch() },
+                        onDrag = { change, offset ->
+                            change.consume()
+                            onDragOffset(offset)
+                        },
+                        onDragEnd = { onDragEnd() },
+                        onDragCancel = { onDragEnd() }
+                    )
+                }
+        )
+
         AsyncImage(
             model = track.artworkUri,
             placeholder = painterResource(R.drawable.zill_logo),

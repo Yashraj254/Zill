@@ -206,4 +206,17 @@ class PlayerManager @Inject constructor(
         ctrl.play()
     }
 
+    fun moveTrack(fromIndex: Int, toIndex: Int) {
+        val currentPlaylist = _uiState.value.playlist.toMutableList()
+        if (fromIndex !in currentPlaylist.indices || toIndex !in currentPlaylist.indices) return
+
+        val item = currentPlaylist.removeAt(fromIndex)
+        currentPlaylist.add(toIndex, item)
+
+        _uiState.update {
+            it.copy(playlist = currentPlaylist)
+        }
+
+        controller?.moveMediaItem(fromIndex, toIndex)
+    }
 }

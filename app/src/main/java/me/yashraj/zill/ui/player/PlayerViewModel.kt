@@ -36,6 +36,10 @@ class PlayerViewModel @Inject constructor(
         playerManager.playFromPlaylist(tracks, startIndex)
     }
 
+    fun onReorder(from: Int, to: Int) {
+        playerManager.moveTrack(from, to)
+    }
+
     fun requestOpenExpanded() {
         _openExpanded.value = true
     }

@@ -152,9 +152,8 @@ fun MusicPlayerScreen(
                 onNext = onNext,
             )
         }
-        val nextTrack = remember(state.playlist, state.currentIndex) {
-            state.playlist.getOrNull(state.currentIndex + 1)
-        }
+        val nextTrack = state.playlist.getOrNull(state.currentIndex + 1)
+
 
         // Next Track Bar pinned to bottom
         nextTrack?.let { nextTrack ->
