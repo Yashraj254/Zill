@@ -22,10 +22,7 @@ import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,13 +51,12 @@ fun MiniPlayer(
     state: PlayerUiState,
     onPlayPause: () -> Unit,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val progress = (state.progressMs.toFloat() / state.durationMs.coerceAtLeast(1L))
         .coerceIn(0f, 1f)
 
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .height(72.dp)
             .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
@@ -179,18 +175,13 @@ fun MiniPlayer(
 @Preview(showBackground = true, backgroundColor = 0xFF080A12, widthDp = 390, heightDp = 72)
 @Composable
 private fun MiniPlayerPreview() {
-    var state by remember {
-        mutableStateOf(
-            PlayerUiState(
-                currentTrack = sampleTrack,
-                isPlaying = true,
-                progressMs = 80_000L,
-            )
-        )
-    }
     MiniPlayer(
-        state = state,
-        onPlayPause = { state = state.copy(isPlaying = !state.isPlaying) },
+        state = PlayerUiState(
+            currentTrack = sampleTrack,
+            isPlaying = true,
+            progressMs = 80_000L,
+        ),
+        onPlayPause = {},
         onClick = {},
     )
 }

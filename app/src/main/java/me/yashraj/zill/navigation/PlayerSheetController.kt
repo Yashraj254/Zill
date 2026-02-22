@@ -6,10 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DRAG ANCHORS
-// ─────────────────────────────────────────────────────────────────────────────
-
 /**
  * Two stable positions the sheet can rest in.
  *  MINI       → compact 72dp bar at the bottom
@@ -17,14 +13,6 @@ import androidx.compose.runtime.staticCompositionLocalOf
  */
 enum class PlayerSheetState { MINI, EXPANDED }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PLAYER STATE HOLDER  (hoist this in your ViewModel in production)
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Lightweight holder for "is the player visible at all?"
- * Combine with your real PlayerState / ViewModel as needed.
- */
 @Stable
 class PlayerSheetController {
     var isVisible by mutableStateOf(false)
@@ -34,9 +22,6 @@ class PlayerSheetController {
         isVisible = true
     }
 
-    fun hide() {
-        isVisible = false
-    }
 }
 
 val LocalPlayerSheetController = staticCompositionLocalOf<PlayerSheetController> {

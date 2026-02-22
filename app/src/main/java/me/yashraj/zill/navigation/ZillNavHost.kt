@@ -37,12 +37,10 @@ fun ZillNavDisplay(
                     backStack.add(startDestination)
                 }
 
-                else -> {
-                    // Let system handle app exit
-                }
+                else -> { }
             }
         },
-        // Recommended decorators for production — handles state saving & ViewModel scoping
+        // handles state saving & ViewModel scoping
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
             rememberViewModelStoreNavEntryDecorator()

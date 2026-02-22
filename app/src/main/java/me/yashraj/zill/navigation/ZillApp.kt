@@ -60,27 +60,26 @@ private val NAV_BAR_HEIGHT = 80.dp
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ZillApp(viewModel: PlayerViewModel = hiltViewModel()) {
+
     val backStack = rememberNavBackStack(Screen.Music)
     val currentKey = backStack.last()
+
     val appBarController = remember { AppBarController() }
     val sheetController = remember { PlayerSheetController() }
 
     val adaptiveInfo = currentWindowAdaptiveInfo()
-    val layoutType = NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
-    val startDestination = Screen.Music
+    val layoutType =
+        NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
 
-    val isBottomNavScreen = BottomDestination.entries.any {
-        it.key::class == currentKey::class
-    }
+    val isBottomNavScreen =
+        BottomDestination.entries.any { it.key::class == currentKey::class }
 
-    // Use custom bottom bar only for compact layouts on top-level screens
     val useCustomBottomBar =
         isBottomNavScreen && layoutType == NavigationSuiteType.NavigationBar
 
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
 
-    // Player sheet drag state
     val draggableState = remember {
         AnchoredDraggableState(
             initialValue = PlayerSheetState.MINI,
@@ -94,23 +93,7 @@ fun ZillApp(viewModel: PlayerViewModel = hiltViewModel()) {
         )
     }
 
-    // 0f = MINI, 1f = EXPANDED
-    val expandProgress by remember {
-        derivedStateOf {
-            val anchors = draggableState.anchors
-            val mini = anchors.positionOf(PlayerSheetState.MINI)
-            val expanded = anchors.positionOf(PlayerSheetState.EXPANDED)
-
-            if (mini == expanded || mini.isNaN() || expanded.isNaN()) 0f
-            else {
-                val raw =
-                    1f - (draggableState.offset - expanded) / (mini - expanded)
-                raw.coerceIn(0f, 1f)
-            }
-        }
-    }
-
-    // Move player sheet to MINI on back press if currently EXPANDED
+    // Back press collapses sheet
     BackHandler(
         enabled = sheetController.isVisible &&
                 draggableState.currentValue == PlayerSheetState.EXPANDED
@@ -120,6 +103,7 @@ fun ZillApp(viewModel: PlayerViewModel = hiltViewModel()) {
         }
     }
 
+    // ViewModel-driven expansion
     val openExpanded by viewModel.openExpanded.collectAsStateWithLifecycle()
 
     LaunchedEffect(openExpanded) {
@@ -129,13 +113,14 @@ fun ZillApp(viewModel: PlayerViewModel = hiltViewModel()) {
             viewModel.consumeOpenExpanded()
         }
     }
-    // Provide appBar, controllers and back stack to the composition
+
     CompositionLocalProvider(
         LocalAppBarController provides appBarController,
         LocalNavBackStack provides backStack,
         LocalPlayerSheetController provides sheetController,
     ) {
-        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+
             val screenHeightPx = with(density) { maxHeight.toPx() }
             val miniHeightPx = with(density) { MINI_PLAYER_HEIGHT.toPx() }
             val navBarHeightPx = with(density) { NAV_BAR_HEIGHT.toPx() }
@@ -143,7 +128,7 @@ fun ZillApp(viewModel: PlayerViewModel = hiltViewModel()) {
             val bottomOffsetPx =
                 if (useCustomBottomBar) navBarHeightPx else 0f
 
-            // Update drag anchors once dimensions are known
+            // Anchors
             LaunchedEffect(screenHeightPx, bottomOffsetPx) {
                 draggableState.updateAnchors(
                     DraggableAnchors {
@@ -188,8 +173,9 @@ fun ZillApp(viewModel: PlayerViewModel = hiltViewModel()) {
                 layoutType = if (layoutType == NavigationSuiteType.NavigationBar)
                     NavigationSuiteType.None else layoutType,
             ) {
-                val contentPaddingModifier =
-                    if (useCustomBottomBar) Modifier.padding(bottom = NAV_BAR_HEIGHT)
+                val contentPadding =
+                    if (useCustomBottomBar)
+                        Modifier.padding(bottom = NAV_BAR_HEIGHT)
                     else Modifier
 
                 Scaffold(
@@ -216,67 +202,81 @@ fun ZillApp(viewModel: PlayerViewModel = hiltViewModel()) {
                                 }
                             },
                             navigationIcon = {
-                                if (appBarController.state.isSearchActive) {
-                                    // In search mode: back arrow closes search
-                                    IconButton(onClick = { appBarController.clearSearch() }) {
-                                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Close search")
+                                when {
+                                    appBarController.state.isSearchActive -> {
+                                        IconButton(onClick = { appBarController.clearSearch() }) {
+                                            Icon(
+                                                Icons.AutoMirrored.Filled.ArrowBack,
+                                                contentDescription = "Close search"
+                                            )
+                                        }
                                     }
-                                } else if (appBarController.state.showBack) {
-                                    IconButton(onClick = { backStack.removeLastOrNull() }) {
-                                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+
+                                    appBarController.state.showBack -> {
+                                        IconButton(onClick = { backStack.removeLastOrNull() }) {
+                                            Icon(
+                                                Icons.AutoMirrored.Filled.ArrowBack,
+                                                contentDescription = "Back"
+                                            )
+                                        }
                                     }
                                 }
                             },
                             actions = {
                                 if (appBarController.state.showSearch) {
-                                    IconButton(onClick = { appBarController.toggleSearch() }) {
+                                    IconButton(onClick = appBarController::toggleSearch) {
                                         Icon(
-                                            if (appBarController.state.isSearchActive) Icons.Default.Close
-                                            else Icons.Default.Search,
+                                            if (appBarController.state.isSearchActive)
+                                                Icons.Default.Close
+                                            else
+                                                Icons.Default.Search,
                                             contentDescription = "Search"
                                         )
                                     }
                                 }
                             }
                         )
-                    },
+                    }
                 ) { innerPadding ->
                     ZillNavDisplay(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
-                            .then(contentPaddingModifier),
-                        startDestination = startDestination,
+                            .then(contentPadding),
+                        startDestination = Screen.Music,
                         currentKey = currentKey
                     )
                 }
             }
 
-            // Player sheet (slides behind bottom bar)
+            // Player sheet
             if (sheetController.isVisible) {
                 PlayerDraggableSheet(
                     draggableState = draggableState,
-                    expandProgress = expandProgress,
-                    onExpand = {
-                        scope.launch {
-                            draggableState.animateTo(PlayerSheetState.EXPANDED)
-                        }
-                    },
-                    onCollapse = {
-                        scope.launch {
-                            draggableState.animateTo(PlayerSheetState.MINI)
-                        }
-                    },
-                )
+                ) {
+                    scope.launch {
+                        draggableState.animateTo(PlayerSheetState.EXPANDED)
+                    }
+                }
             }
 
-            // Custom bottom navigation
+            // Custom bottom bar (local progress only)
             if (useCustomBottomBar) {
-                val navTranslationY by remember {
-                    derivedStateOf { navBarHeightPx * expandProgress }
-                }
-                val navAlpha by remember {
-                    derivedStateOf { 1f - expandProgress }
+
+                val navExpandProgress by remember(draggableState) {
+                    derivedStateOf {
+                        val anchors = draggableState.anchors
+                        val mini = anchors.positionOf(PlayerSheetState.MINI)
+                        val expanded = anchors.positionOf(PlayerSheetState.EXPANDED)
+
+                        if (mini == expanded || mini.isNaN() || expanded.isNaN()) 0f
+                        else {
+                            val raw =
+                                1f - (draggableState.offset - expanded) /
+                                        (mini - expanded)
+                            raw.coerceIn(0f, 1f)
+                        }
+                    }
                 }
 
                 Box(
@@ -285,8 +285,8 @@ fun ZillApp(viewModel: PlayerViewModel = hiltViewModel()) {
                         .height(NAV_BAR_HEIGHT)
                         .fillMaxWidth()
                         .graphicsLayer {
-                            translationY = navTranslationY
-                            alpha = navAlpha
+                            translationY = navBarHeightPx * navExpandProgress
+                            alpha = 1f - navExpandProgress
                         }
                 ) {
                     NavigationBar {
