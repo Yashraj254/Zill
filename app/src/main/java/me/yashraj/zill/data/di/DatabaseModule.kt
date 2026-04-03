@@ -30,6 +30,7 @@ object DatabaseModule {
     @Singleton
     fun providePlaylistDatabase(@ApplicationContext context: Context): ZillDatabase {
         return Room.databaseBuilder(context, ZillDatabase::class.java, "zill_database.db")
+            .addCallback(ZillDatabase.seedCallback)
             .build()
     }
 

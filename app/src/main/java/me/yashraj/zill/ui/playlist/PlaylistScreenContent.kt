@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
@@ -43,31 +44,29 @@ fun PlaylistScreenContent(
             }
 
             is PlaylistUiState.Success -> {
-                if (uiState.playlists.isEmpty()) {
-                    Text(
-                        text = "No playlists yet.\nTap + to create one.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .padding(32.dp)
-                    )
-                } else {
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(uiState.playlists, key = { it.id }) { playlist ->
                             ListItem(
                                 headlineContent = { Text(playlist.name) },
                                 supportingContent = { Text("${playlist.trackCount} tracks") },
                                 leadingContent = {
-                                    Icon(Icons.Default.QueueMusic, contentDescription = null)
+                                    Icon(
+                                        if (playlist.isDefault) Icons.Default.Favorite
+                                        else Icons.Default.QueueMusic,
+                                        contentDescription = null,
+                                        tint = if (playlist.isDefault) MaterialTheme.colorScheme.primary
+                                        else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
                                 },
                                 trailingContent = {
-                                    IconButton(onClick = { onDeletePlaylist(playlist.id) }) {
-                                        Icon(
-                                            Icons.Default.Delete,
-                                            contentDescription = "Delete playlist",
-                                            tint = MaterialTheme.colorScheme.error
-                                        )
+                                    if (!playlist.isDefault) {
+                                        IconButton(onClick = { onDeletePlaylist(playlist.id) }) {
+                                            Icon(
+                                                Icons.Default.Delete,
+                                                contentDescription = "Delete playlist",
+                                                tint = MaterialTheme.colorScheme.error
+                                            )
+                                        }
                                     }
                                 },
                                 modifier = Modifier
@@ -75,7 +74,6 @@ fun PlaylistScreenContent(
                                     .clickable { onPlaylistClick(playlist.id, playlist.name) }
                             )
                         }
-                    }
                 }
             }
 

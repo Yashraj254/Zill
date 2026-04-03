@@ -3,9 +3,12 @@ package me.yashraj.zill.ui.playlist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
@@ -24,6 +27,8 @@ class PlaylistViewModel @Inject constructor(
 
     private val _currentPlaylistId = MutableStateFlow<Long?>(null)
     private val _searchQuery = MutableStateFlow("")
+    private val _toastMessage = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val toastMessage: SharedFlow<String> = _toastMessage.asSharedFlow()
 
     val playlists: StateFlow<PlaylistUiState> = playlistRepository.getAllPlaylists()
         .map { PlaylistUiState.Success(it) as PlaylistUiState }
@@ -59,7 +64,17 @@ class PlaylistViewModel @Inject constructor(
         _searchQuery.value = query
     }
 
+    private fun nameExists(name: String): Boolean {
+        val state = playlists.value
+        return state is PlaylistUiState.Success &&
+                state.playlists.any { it.name.equals(name, ignoreCase = true) }
+    }
+
     fun createPlaylist(name: String) = viewModelScope.launch {
+        if (nameExists(name)) {
+            _toastMessage.emit("A playlist named \"$name\" already exists")
+            return@launch
+        }
         playlistRepository.createPlaylist(name)
     }
 
@@ -76,6 +91,10 @@ class PlaylistViewModel @Inject constructor(
     }
 
     fun createPlaylistAndAddTrack(name: String, trackId: Long) = viewModelScope.launch {
+        if (nameExists(name)) {
+            _toastMessage.emit("A playlist named \"$name\" already exists")
+            return@launch
+        }
         playlistRepository.createPlaylistAndAddTrack(name, trackId)
     }
 }

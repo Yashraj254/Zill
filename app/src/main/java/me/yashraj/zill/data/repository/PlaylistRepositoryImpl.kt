@@ -1,7 +1,10 @@
 package me.yashraj.zill.data.repository
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import me.yashraj.zill.data.local.dao.PlaylistDao
 import me.yashraj.zill.data.local.entity.PlaylistEntity
@@ -17,9 +20,16 @@ class PlaylistRepositoryImpl @Inject constructor(
     private val trackRepository: TrackRepository
 ) : PlaylistRepository {
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getAllPlaylists(): Flow<List<Playlist>> =
-        playlistDao.getAllPlaylists().map { list ->
-            list.map { Playlist(it.id, it.name, it.trackCount, it.createdAt) }
+        playlistDao.getAllPlaylists().flatMapLatest { entities ->
+            if (entities.isEmpty()) return@flatMapLatest flowOf(emptyList())
+            val countFlows: List<Flow<Playlist>> = entities.map { entity ->
+                playlistDao.getTrackCount(entity.id).map { count ->
+                    Playlist(entity.id, entity.name, count, entity.createdAt, entity.isDefault)
+                }
+            }
+            combine(countFlows) { playlists: Array<Playlist> -> playlists.toList() }
         }
 
     override fun getPlaylistTracks(playlistId: Long): Flow<List<Track>> =

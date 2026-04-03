@@ -11,6 +11,8 @@ data class PlaylistEntity(
     @ColumnInfo(name = "id") val id: Long = 0,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = "is_default") val isDefault: Boolean = false
 ) {
-    @Ignore val trackCount: Int = 0
+    @Ignore
+    val trackCount: Int = 0
 }

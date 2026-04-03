@@ -13,12 +13,10 @@ import me.yashraj.zill.data.local.entity.PlaylistTrackEntity
 interface PlaylistDao {
 
     @Query("""
-        SELECT p.id, p.name, p.created_at,
-               COUNT(pt.track_id) AS trackCount
-        FROM playlist p
+        SELECT p.id, p.name, p.created_at, p.is_default FROM playlist p
         LEFT JOIN playlist_track pt ON p.id = pt.playlist_id
         GROUP BY p.id
-        ORDER BY p.created_at DESC
+        ORDER BY p.is_default DESC, p.created_at DESC
     """)
     fun getAllPlaylists(): Flow<List<PlaylistEntity>>
 
@@ -45,4 +43,7 @@ interface PlaylistDao {
 
     @Query("SELECT COUNT(*) FROM playlist_track WHERE playlist_id = :playlistId AND track_id = :trackId")
     suspend fun isTrackInPlaylist(playlistId: Long, trackId: Long): Int
+
+    @Query("SELECT COUNT(*) FROM playlist_track WHERE playlist_id = :playlistId")
+    fun getTrackCount(playlistId: Long): Flow<Int>
 }
