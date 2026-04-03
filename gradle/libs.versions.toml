@@ -23,6 +23,7 @@ navigationCompose = "2.9.7"
 timber = "5.0.1"
 guava = "33.5.0-android"
 kotlinxCoroutinesGuava = "1.7.3"
+foundation = "1.10.3"
 
 
 [libraries]
@@ -58,6 +59,7 @@ androidx-compose-material3-adaptive-navigation-suite = { group = "androidx.compo
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
 kotlinxCoroutinesGuava = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-guava", version.ref = "kotlinxCoroutinesGuava" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 
 [plugins]

@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
 
     implementation(libs.hilt.android)
+    implementation(libs.androidx.compose.foundation)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 

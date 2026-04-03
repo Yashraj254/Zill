@@ -6,9 +6,11 @@ import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -23,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -30,6 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.yashraj.zill.ui.player.MiniPlayer
 import me.yashraj.zill.ui.player.MusicPlayerScreen
 import me.yashraj.zill.ui.player.PlayerViewModel
+import kotlin.math.roundToInt
 
 
 val MINI_PLAYER_HEIGHT = 72.dp
@@ -42,7 +46,6 @@ fun PlayerDraggableSheet(
     onExpand: () -> Unit,
 ) {
     val density = LocalDensity.current
-
     val playerState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // Expansion progress (0f = MINI, 1f = EXPANDED)
@@ -51,41 +54,35 @@ fun PlayerDraggableSheet(
             val anchors = draggableState.anchors
             val mini = anchors.positionOf(PlayerSheetState.MINI)
             val expanded = anchors.positionOf(PlayerSheetState.EXPANDED)
-
-            if (mini == expanded || mini.isNaN() || expanded.isNaN()) {
-                0f
-            } else {
-                val raw =
-                    1f - (draggableState.offset - expanded) / (mini - expanded)
-                raw.coerceIn(0f, 1f)
-            }
+            if (mini == expanded || mini.isNaN() || expanded.isNaN()) 0f
+            else (1f - (draggableState.offset - expanded) / (mini - expanded)).coerceIn(0f, 1f)
         }
     }
 
     Box(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .offset {
+                val offsetPx = draggableState
+                    .requireOffset()
+                    .let { if (it.isNaN()) 0f else it }
+                    .roundToInt()
+                IntOffset(x = 0, y = offsetPx)
+            }
             .anchoredDraggable(
                 state = draggableState,
                 orientation = Orientation.Vertical,
             )
             .graphicsLayer {
-                // Vertical movement
-                translationY = draggableState
-                    .requireOffset()
-                    .let { if (it.isNaN()) 0f else it }
-
-                // Corner radius (20dp → 0dp) in pixels
                 val radiusPx = with(density) {
                     lerp(20.dp, 0.dp, expandProgress).toPx()
                 }
-
                 shape = RoundedCornerShape(topStart = radiusPx, topEnd = radiusPx)
                 clip = true
             }
             .background(Color(0xFF0D1017))
     ) {
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -126,5 +123,3 @@ fun PlayerDraggableSheet(
         )
     }
 }
-
-
