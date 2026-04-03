@@ -1,12 +1,11 @@
 package me.yashraj.zill.ui.artist
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import me.yashraj.zill.navigation.LocalAppBarController
 import me.yashraj.zill.permission.PermissionType
 import me.yashraj.zill.permission.components.RequestPermission
@@ -18,12 +17,7 @@ fun ArtistScreen(onArtistClick: (Long, String) -> Unit, viewModel: ArtistViewMod
     val appBar = LocalAppBarController.current
     val searchQuery = appBar.state.searchQuery
 
-    DisposableEffect(Unit) {
-        appBar.update { copy(title = "Artists", showBack = false, showSearch = true) }
-        onDispose { appBar.clearSearch() }
-    }
-
-    var isPermissionGranted = rememberPermissionState(PermissionType.ReadAudio)
+    var isPermissionGranted by rememberPermissionState(PermissionType.ReadAudio)
     RequestPermission(
         permissionType = PermissionType.ReadAudio,
         onPermissionGranted = {

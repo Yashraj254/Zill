@@ -11,13 +11,19 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import me.yashraj.zill.domain.model.Track
 import me.yashraj.zill.navigation.LocalPlayerSheetController
 import me.yashraj.zill.ui.core.TrackUiState
 import me.yashraj.zill.ui.player.PlayerViewModel
+import me.yashraj.zill.ui.playlist.AddToPlaylistBottomSheet
 
 @Composable
 fun MusicScreenContent(
@@ -26,6 +32,7 @@ fun MusicScreenContent(
 ) {
     val state = rememberLazyListState()
     val sheetController = LocalPlayerSheetController.current
+    var trackForPlaylist by remember { mutableStateOf<Track?>(null) }
 
     LazyColumn(state = state, modifier = Modifier.fillMaxSize()) {
         when (trackUiState) {
@@ -43,10 +50,14 @@ fun MusicScreenContent(
 
             is TrackUiState.Success -> {
                 itemsIndexed(items = trackUiState.tracks, key = { _, track -> track.id }) { index, track ->
-                    MusicTrackItem(track) {
-                        playerViewModel.onPlayFromPlaylist(trackUiState.tracks, index)
-                        sheetController.show()
-                    }
+                    MusicTrackItem(
+                        track = track,
+                        onMoreClick = { trackForPlaylist = track },
+                        onClick = {
+                            playerViewModel.onPlayFromPlaylist(trackUiState.tracks, index)
+                            sheetController.show()
+                        }
+                    )
                 }
             }
 
@@ -66,5 +77,12 @@ fun MusicScreenContent(
                 }
             }
         }
+    }
+
+    trackForPlaylist?.let { track ->
+        AddToPlaylistBottomSheet(
+            track = track,
+            onDismiss = { trackForPlaylist = null }
+        )
     }
 }

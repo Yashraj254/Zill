@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Person4
+import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavKey
@@ -21,6 +22,7 @@ enum class BottomDestination(
     FOLDERS(Screen.Folders, Icons.Default.Folder, R.string.destination_folders),
     ARTISTS(Screen.Artists, Icons.Default.Person4, R.string.destination_artists),
     ALBUMS(Screen.Albums, Icons.Default.Album, R.string.destination_albums),
+    PLAYLISTS(Screen.Playlists, Icons.Default.QueueMusic, R.string.destination_playlists),
 }
 
 sealed interface Screen : NavKey {
@@ -33,11 +35,15 @@ sealed interface Screen : NavKey {
     @Serializable
     data object Albums : Screen
     @Serializable
+    data object Playlists : Screen
+    @Serializable
     data class ArtistTracks(val artistName: String, val artistId: Long) : Screen
     @Serializable
     data class AlbumTracks(val albumName: String, val albumId: Long) : Screen
     @Serializable
     data class FolderTracks(val folderPath: String) : Screen
+    @Serializable
+    data class PlaylistTracks(val playlistId: Long, val playlistName: String) : Screen
 }
 
 val LocalNavBackStack = staticCompositionLocalOf<MutableList<NavKey>> {

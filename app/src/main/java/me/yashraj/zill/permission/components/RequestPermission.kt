@@ -10,6 +10,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -110,18 +111,17 @@ fun openAppSettings(context: Context) {
 }
 
 @Composable
-fun rememberPermissionState(permissionType: PermissionType): Boolean {
+fun rememberPermissionState(permissionType: PermissionType): MutableState<Boolean> {
     val context = LocalContext.current
 
     return remember(permissionType) {
-        if (permissionType.permissions.isEmpty()) {
-            true
-        } else {
-            permissionType.permissions.all { permission ->
+        mutableStateOf(
+            if (permissionType.permissions.isEmpty()) true
+            else permissionType.permissions.all { permission ->
                 ContextCompat.checkSelfPermission(context, permission) ==
                         PackageManager.PERMISSION_GRANTED
             }
-        }
+        )
     }
 }
 

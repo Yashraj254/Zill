@@ -24,6 +24,7 @@ timber = "5.0.1"
 guava = "33.5.0-android"
 kotlinxCoroutinesGuava = "1.7.3"
 foundation = "1.10.3"
+room = "2.7.1"
 
 
 [libraries]
@@ -60,6 +61,9 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
 kotlinxCoroutinesGuava = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-guava", version.ref = "kotlinxCoroutinesGuava" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 
 
 [plugins]
