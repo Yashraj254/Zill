@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -30,8 +29,16 @@ class PlaylistViewModel @Inject constructor(
     private val _toastMessage = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val toastMessage: SharedFlow<String> = _toastMessage.asSharedFlow()
 
-    val playlists: StateFlow<PlaylistUiState> = playlistRepository.getAllPlaylists()
-        .map { PlaylistUiState.Success(it) as PlaylistUiState }
+    private val _playlistSearchQuery = MutableStateFlow("")
+
+    val playlists: StateFlow<PlaylistUiState> = combine(
+        playlistRepository.getAllPlaylists(),
+        _playlistSearchQuery
+    ) { playlists, query ->
+        val filtered = if (query.isBlank()) playlists
+        else playlists.filter { it.name.contains(query, ignoreCase = true) }
+        PlaylistUiState.Success(filtered) as PlaylistUiState
+    }
         .onStart { emit(PlaylistUiState.Loading) }
         .stateIn(
             scope = viewModelScope,
@@ -58,6 +65,10 @@ class PlaylistViewModel @Inject constructor(
 
     fun loadPlaylistTracks(playlistId: Long) {
         _currentPlaylistId.value = playlistId
+    }
+
+    fun onSearchPlaylist(query: String) {
+        _playlistSearchQuery.value = query
     }
 
     fun onSearchQuery(query: String) {

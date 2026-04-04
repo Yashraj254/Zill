@@ -36,7 +36,7 @@ fun ZillNavDisplay(
                 is Screen.Folders -> appBar.update { copy(title = "Folders", showBack = false, showSearch = true) }
                 is Screen.Artists -> appBar.update { copy(title = "Artists", showBack = false, showSearch = true) }
                 is Screen.Albums -> appBar.update { copy(title = "Albums", showBack = false, showSearch = true) }
-                is Screen.Playlists -> appBar.update { copy(title = "Playlists", showBack = false, showSearch = false) }
+                is Screen.Playlists -> appBar.update { copy(title = "Playlists", showBack = false, showSearch = true) }
                 is Screen.ArtistTracks -> appBar.update { copy(title = k.artistName, showBack = true, showSearch = true) }
                 is Screen.AlbumTracks -> appBar.update { copy(title = k.albumName, showBack = true, showSearch = true) }
                 is Screen.FolderTracks -> appBar.update { copy(title = k.folderPath.takeLastWhile { it != '/' }, showBack = true, showSearch = true) }

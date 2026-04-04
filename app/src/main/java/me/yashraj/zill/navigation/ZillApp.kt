@@ -42,9 +42,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -66,6 +69,15 @@ fun ZillApp(viewModel: PlayerViewModel = hiltViewModel()) {
 
     val appBarController = remember { AppBarController() }
     val sheetController = remember { PlayerSheetController() }
+    val searchFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(appBarController.state.isSearchActive) {
+        if (appBarController.state.isSearchActive) {
+            searchFocusRequester.requestFocus()
+            keyboardController?.show()
+        }
+    }
 
     val adaptiveInfo = currentWindowAdaptiveInfo()
     val layoutType =
@@ -194,7 +206,9 @@ fun ZillApp(viewModel: PlayerViewModel = hiltViewModel()) {
                                             focusedIndicatorColor = Color.Transparent,
                                             unfocusedIndicatorColor = Color.Transparent,
                                         ),
-                                        modifier = Modifier.fillMaxWidth(),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .focusRequester(searchFocusRequester),
                                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                                     )
                                 } else {
