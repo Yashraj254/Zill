@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.RepeatOne
 import androidx.compose.material.icons.filled.SkipNext
@@ -23,6 +24,8 @@ fun PlaybackControls(
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     onToggleLoop: () -> Unit,
+    onAddToPlaylist: () -> Unit,
+    addToPlaylistEnabled: Boolean = true,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -55,6 +58,14 @@ fun PlaybackControls(
             icon = Icons.Default.SkipNext,
             contentDescription = "Next",
             onClick = onNext
+        )
+
+        ControlIconButton(
+            icon = Icons.Default.PlaylistAdd,
+            contentDescription = "Add to playlist",
+            onClick = onAddToPlaylist,
+            enabled = addToPlaylistEnabled,
+            tint = ControlSecondary,
         )
     }
 }

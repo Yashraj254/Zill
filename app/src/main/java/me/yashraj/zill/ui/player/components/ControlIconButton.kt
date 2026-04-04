@@ -25,6 +25,7 @@ fun ControlIconButton(
     contentDescription: String,
     onClick: () -> Unit,
     tint: Color = ControlSecondary,
+    enabled: Boolean = true,
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -39,12 +40,12 @@ fun ControlIconButton(
                     )
                 )
             )
-            .clickable(onClick = onClick)
+            .clickable(enabled = enabled, onClick = onClick)
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = tint,
+            tint = if (enabled) tint else tint.copy(alpha = 0.38f),
             modifier = Modifier.size(26.dp)
         )
     }

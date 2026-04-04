@@ -34,6 +34,7 @@ import me.yashraj.zill.domain.model.Track
 import me.yashraj.zill.ui.player.components.MusicSeekBar
 import me.yashraj.zill.ui.player.components.NextTrackBar
 import me.yashraj.zill.ui.player.components.PlaybackControls
+import me.yashraj.zill.ui.playlist.AddToPlaylistBottomSheet
 import me.yashraj.zill.ui.queue.TrackQueueScreen
 import me.yashraj.zill.ui.theme.IcyBgBottom
 import me.yashraj.zill.ui.theme.IcyBgTop
@@ -73,6 +74,7 @@ fun MusicPlayerScreen(
     modifier: Modifier = Modifier,
 ) {
     var showQueue by remember { mutableStateOf(false) }
+    var showAddToPlaylist by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
@@ -153,6 +155,8 @@ fun MusicPlayerScreen(
                 onPrevious = onPrevious,
                 onNext = onNext,
                 onToggleLoop = onToggleLoop,
+                onAddToPlaylist = { showAddToPlaylist = true },
+                addToPlaylistEnabled = state.currentTrack != null,
             )
         }
         val nextTrack = state.playlist.getOrNull(state.currentIndex + 1)
@@ -175,6 +179,16 @@ fun MusicPlayerScreen(
             currentTrack = state.currentTrack,
             onDismiss = { showQueue = false }
         )
+    }
+
+    // Add to playlist bottom sheet
+    if (showAddToPlaylist) {
+        state.currentTrack?.let { track ->
+            AddToPlaylistBottomSheet(
+                track = track,
+                onDismiss = { showAddToPlaylist = false }
+            )
+        }
     }
 }
 
