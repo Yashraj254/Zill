@@ -10,4 +10,5 @@ data class PlayerUiState(
     val progressMs: Long = 0L,
     val durationMs: Long = 0L,
     val isConnected: Boolean = false,
+    val loopMode: LoopMode = LoopMode.OFF,
 )

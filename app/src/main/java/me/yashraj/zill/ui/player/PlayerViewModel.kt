@@ -31,6 +31,7 @@ class PlayerViewModel @Inject constructor(
     fun skipNext() = playerManager.next()
     fun skipPrevious() = playerManager.previous()
     fun seekTo(ms: Long) = playerManager.seek(ms)
+    fun toggleLoopMode() = playerManager.setLoopMode(uiState.value.loopMode.next())
 
     fun onPlayFromPlaylist(tracks: List<Track>, startIndex: Int) = viewModelScope.launch {
         playerManager.playFromPlaylist(tracks, startIndex)

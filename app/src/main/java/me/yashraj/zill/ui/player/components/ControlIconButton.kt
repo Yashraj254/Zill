@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import me.yashraj.zill.ui.theme.ControlSecondary
 import me.yashraj.zill.ui.theme.ControlSurface
 import me.yashraj.zill.ui.theme.ControlSurfaceAlt
@@ -23,6 +24,7 @@ fun ControlIconButton(
     icon: ImageVector,
     contentDescription: String,
     onClick: () -> Unit,
+    tint: Color = ControlSecondary,
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -42,7 +44,7 @@ fun ControlIconButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = ControlSecondary,
+            tint = tint,
             modifier = Modifier.size(26.dp)
         )
     }

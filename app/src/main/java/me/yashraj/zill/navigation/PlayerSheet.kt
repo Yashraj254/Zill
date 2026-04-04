@@ -94,6 +94,7 @@ fun PlayerDraggableSheet(
                 onPrevious = viewModel::skipPrevious,
                 onNext = viewModel::skipNext,
                 onSeek = viewModel::seekTo,
+                onToggleLoop = viewModel::toggleLoopMode,
             )
         }
 

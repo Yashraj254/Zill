@@ -18,13 +18,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import me.yashraj.zill.data.preferences.PlayerPreferencesManager
 import me.yashraj.zill.domain.model.Track
 import me.yashraj.zill.domain.repository.TrackRepository
 import me.yashraj.zill.domain.mapper.toMediaItem
+import me.yashraj.zill.ui.player.LoopMode
 import me.yashraj.zill.ui.player.PlayerUiState
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,7 +35,8 @@ import javax.inject.Singleton
 @Singleton
 class PlayerManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val trackRepository: TrackRepository
+    private val trackRepository: TrackRepository,
+    private val preferencesManager: PlayerPreferencesManager
 ) {
 
     private val _uiState = MutableStateFlow(PlayerUiState())
@@ -65,7 +69,7 @@ class PlayerManager @Inject constructor(
             _uiState.update {
                 it.copy(
                     currentIndex = index,
-                    currentTrack = uiState.value.playlist.getOrNull(index),
+                    currentTrack = it.playlist.getOrNull(index),
                     progressMs = 0L,
                     durationMs = ctrl.duration.coerceAtLeast(0L)
                 )
@@ -119,16 +123,31 @@ class PlayerManager @Inject constructor(
                     .let { id -> trackRepository.getTrackById(id.toLongOrNull()) }
             }
 
-            _uiState.update {
-                it.copy(
-                    isConnected = true,
-                    isPlaying = ctrl.isPlaying,
-                    currentIndex = index,
-                    currentTrack = tracks.getOrNull(index),
-                    playlist = tracks,
-                    durationMs = ctrl.duration.coerceAtLeast(0L),
-                    progressMs = ctrl.currentPosition.coerceAtLeast(0L)
-                )
+            val savedLoopMode = preferencesManager.loopMode.first()
+            ctrl.repeatMode = savedLoopMode.toMedia3RepeatMode()
+
+            _uiState.update { state ->
+                // Only restore playlist/currentTrack from the controller when it actually has
+                // media items loaded (i.e. service was already running). If the controller is
+                // fresh (0 items), playFromPlaylist may have already set the correct state —
+                // overwriting it here would cause the "unknown title on first play" race.
+                if (tracks.isNotEmpty()) {
+                    state.copy(
+                        isConnected = true,
+                        isPlaying = ctrl.isPlaying,
+                        currentIndex = index,
+                        currentTrack = tracks.getOrNull(index),
+                        playlist = tracks,
+                        durationMs = ctrl.duration.coerceAtLeast(0L),
+                        progressMs = ctrl.currentPosition.coerceAtLeast(0L),
+                        loopMode = savedLoopMode
+                    )
+                } else {
+                    state.copy(
+                        isConnected = true,
+                        loopMode = savedLoopMode
+                    )
+                }
             }
 
             if (ctrl.isPlaying) startProgress()
@@ -204,6 +223,12 @@ class PlayerManager @Inject constructor(
         ctrl.setMediaItems(mediaItems, startIndex, C.TIME_UNSET)
         ctrl.prepare()
         ctrl.play()
+    }
+
+    fun setLoopMode(mode: LoopMode) {
+        controller?.repeatMode = mode.toMedia3RepeatMode()
+        _uiState.update { it.copy(loopMode = mode) }
+        scope.launch { preferencesManager.setLoopMode(mode) }
     }
 
     fun moveTrack(fromIndex: Int, toIndex: Int) {

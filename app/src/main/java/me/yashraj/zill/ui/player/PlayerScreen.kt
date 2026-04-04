@@ -69,6 +69,7 @@ fun MusicPlayerScreen(
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     onSeek: (Long) -> Unit,
+    onToggleLoop: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var showQueue by remember { mutableStateOf(false) }
@@ -147,9 +148,11 @@ fun MusicPlayerScreen(
             // Controls
             PlaybackControls(
                 isPlaying = state.isPlaying,
+                loopMode = state.loopMode,
                 onPlayPause = onPlayPause,
                 onPrevious = onPrevious,
                 onNext = onNext,
+                onToggleLoop = onToggleLoop,
             )
         }
         val nextTrack = state.playlist.getOrNull(state.currentIndex + 1)
@@ -197,6 +200,7 @@ private fun MusicPlayerScreenPreview() {
         onPrevious = {},
         onNext = {},
         onSeek = {},
+        onToggleLoop = {},
     )
 }
 
